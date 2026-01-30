@@ -3,8 +3,60 @@
  * Handles project context, entity extraction, and semantic memory (RAG)
  */
 
+import { app } from 'electron';
+import * as fs from 'fs';
+import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 import { getSupabase, getSession } from './supabase';
 import OpenAI from 'openai';
+
+// ============================================
+// LOCAL PROJECT STORAGE
+// ============================================
+
+const getProjectsFilePath = (): string => {
+  return path.join(app.getPath('userData'), 'projects.json');
+};
+
+function ensureProjectsFile(): void {
+  const filePath = getProjectsFilePath();
+  const dir = path.dirname(filePath);
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, '[]', 'utf-8');
+  }
+}
+
+function readLocalProjects(): Project[] {
+  ensureProjectsFile();
+  const filePath = getProjectsFilePath();
+
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(content) as Project[];
+  } catch {
+    return [];
+  }
+}
+
+function writeLocalProjects(projects: Project[]): void {
+  ensureProjectsFile();
+  const filePath = getProjectsFilePath();
+  fs.writeFileSync(filePath, JSON.stringify(projects, null, 2), 'utf-8');
+}
+
+async function isAuthenticated(): Promise<boolean> {
+  try {
+    const session = await getSession();
+    return !!session?.user?.id;
+  } catch {
+    return false;
+  }
+}
 
 // Types
 export interface Project {
@@ -116,35 +168,60 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 // ============================================
 
 export async function listProjects(): Promise<Project[]> {
-  const supabase = getSupabase();
-  if (!supabase) throw new Error('Supabase not initialized');
+  // Check if authenticated - use Supabase if so, otherwise local
+  const authenticated = await isAuthenticated();
 
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('is_active', true)
-    .order('is_default', { ascending: false })
-    .order('updated_at', { ascending: false });
+  if (authenticated) {
+    const supabase = getSupabase();
+    if (!supabase) throw new Error('Supabase not initialized');
 
-  if (error) throw error;
-  return data || [];
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('is_active', true)
+      .order('is_default', { ascending: false })
+      .order('updated_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  // Use local storage
+  const projects = readLocalProjects()
+    .filter((p) => p.is_active)
+    .sort((a, b) => {
+      // Default projects first
+      if (a.is_default && !b.is_default) return -1;
+      if (!a.is_default && b.is_default) return 1;
+      // Then by updated_at
+      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+    });
+  return projects;
 }
 
 export async function getProject(projectId: string): Promise<Project | null> {
-  const supabase = getSupabase();
-  if (!supabase) throw new Error('Supabase not initialized');
+  const authenticated = await isAuthenticated();
 
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('id', projectId)
-    .single();
+  if (authenticated) {
+    const supabase = getSupabase();
+    if (!supabase) throw new Error('Supabase not initialized');
 
-  if (error) {
-    if (error.code === 'PGRST116') return null; // Not found
-    throw error;
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', projectId)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // Not found
+      throw error;
+    }
+    return data;
   }
-  return data;
+
+  // Use local storage
+  const projects = readLocalProjects();
+  return projects.find((p) => p.id === projectId) || null;
 }
 
 export async function createProject(project: {
@@ -155,97 +232,177 @@ export async function createProject(project: {
   team?: TeamMember[];
   is_default?: boolean;
 }): Promise<Project> {
-  const supabase = getSupabase();
-  if (!supabase) throw new Error('Supabase not initialized');
+  const authenticated = await isAuthenticated();
 
-  const session = await getSession();
-  if (!session?.user?.id) throw new Error('Not authenticated');
+  if (authenticated) {
+    const supabase = getSupabase();
+    if (!supabase) throw new Error('Supabase not initialized');
 
-  // If setting as default, unset other defaults first
-  if (project.is_default) {
-    await supabase
+    const session = await getSession();
+    if (!session?.user?.id) throw new Error('Not authenticated');
+
+    // If setting as default, unset other defaults first
+    if (project.is_default) {
+      await supabase
+        .from('projects')
+        .update({ is_default: false })
+        .eq('user_id', session.user.id);
+    }
+
+    const { data, error } = await supabase
       .from('projects')
-      .update({ is_default: false })
-      .eq('user_id', session.user.id);
+      .insert({
+        user_id: session.user.id,
+        name: project.name,
+        description: project.description,
+        context: project.context,
+        stack: project.stack,
+        team: project.team || [],
+        is_default: project.is_default || false,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
-  const { data, error } = await supabase
-    .from('projects')
-    .insert({
-      user_id: session.user.id,
-      name: project.name,
-      description: project.description,
-      context: project.context,
-      stack: project.stack,
-      team: project.team || [],
-      is_default: project.is_default || false,
-    })
-    .select()
-    .single();
+  // Use local storage
+  const projects = readLocalProjects();
+  const now = new Date().toISOString();
 
-  if (error) throw error;
-  return data;
+  // If setting as default, unset other defaults
+  if (project.is_default) {
+    projects.forEach((p) => {
+      p.is_default = false;
+    });
+  }
+
+  const newProject: Project = {
+    id: uuidv4(),
+    user_id: 'local',
+    name: project.name,
+    description: project.description,
+    context: project.context,
+    stack: project.stack,
+    team: project.team || [],
+    settings: {},
+    is_active: true,
+    is_default: project.is_default || false,
+    created_at: now,
+    updated_at: now,
+  };
+
+  projects.push(newProject);
+  writeLocalProjects(projects);
+  return newProject;
 }
 
 export async function updateProject(
   projectId: string,
   updates: Partial<Omit<Project, 'id' | 'user_id' | 'created_at'>>
 ): Promise<Project> {
-  const supabase = getSupabase();
-  if (!supabase) throw new Error('Supabase not initialized');
+  const authenticated = await isAuthenticated();
 
-  const session = await getSession();
-  if (!session?.user?.id) throw new Error('Not authenticated');
+  if (authenticated) {
+    const supabase = getSupabase();
+    if (!supabase) throw new Error('Supabase not initialized');
 
-  // If setting as default, unset other defaults first
-  if (updates.is_default) {
-    await supabase
+    const session = await getSession();
+    if (!session?.user?.id) throw new Error('Not authenticated');
+
+    // If setting as default, unset other defaults first
+    if (updates.is_default) {
+      await supabase
+        .from('projects')
+        .update({ is_default: false })
+        .eq('user_id', session.user.id)
+        .neq('id', projectId);
+    }
+
+    const { data, error } = await supabase
       .from('projects')
-      .update({ is_default: false })
-      .eq('user_id', session.user.id)
-      .neq('id', projectId);
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', projectId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
-  const { data, error } = await supabase
-    .from('projects')
-    .update({ ...updates, updated_at: new Date().toISOString() })
-    .eq('id', projectId)
-    .select()
-    .single();
+  // Use local storage
+  const projects = readLocalProjects();
+  const index = projects.findIndex((p) => p.id === projectId);
+  if (index === -1) throw new Error('Project not found');
 
-  if (error) throw error;
-  return data;
+  // If setting as default, unset other defaults
+  if (updates.is_default) {
+    projects.forEach((p, i) => {
+      if (i !== index) p.is_default = false;
+    });
+  }
+
+  projects[index] = {
+    ...projects[index],
+    ...updates,
+    updated_at: new Date().toISOString(),
+  };
+
+  writeLocalProjects(projects);
+  return projects[index];
 }
 
 export async function deleteProject(projectId: string): Promise<void> {
-  const supabase = getSupabase();
-  if (!supabase) throw new Error('Supabase not initialized');
+  const authenticated = await isAuthenticated();
 
-  // Soft delete - just mark as inactive
-  const { error } = await supabase
-    .from('projects')
-    .update({ is_active: false })
-    .eq('id', projectId);
+  if (authenticated) {
+    const supabase = getSupabase();
+    if (!supabase) throw new Error('Supabase not initialized');
 
-  if (error) throw error;
+    // Soft delete - just mark as inactive
+    const { error } = await supabase
+      .from('projects')
+      .update({ is_active: false })
+      .eq('id', projectId);
+
+    if (error) throw error;
+    return;
+  }
+
+  // Use local storage - soft delete
+  const projects = readLocalProjects();
+  const index = projects.findIndex((p) => p.id === projectId);
+  if (index !== -1) {
+    projects[index].is_active = false;
+    writeLocalProjects(projects);
+  }
 }
 
 export async function getDefaultProject(): Promise<Project | null> {
-  const supabase = getSupabase();
-  if (!supabase) throw new Error('Supabase not initialized');
+  const authenticated = await isAuthenticated();
 
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('is_default', true)
-    .eq('is_active', true)
-    .single();
+  if (authenticated) {
+    const supabase = getSupabase();
+    if (!supabase) throw new Error('Supabase not initialized');
 
-  if (error) {
-    if (error.code === 'PGRST116') return null;
-    throw error;
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('is_default', true)
+      .eq('is_active', true)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
+    return data;
   }
-  return data;
+
+  // Use local storage
+  const projects = readLocalProjects();
+  return projects.find((p) => p.is_default && p.is_active) || null;
 }
 
 // ============================================

@@ -205,6 +205,31 @@ Network connection issue. Check your internet connection and try again.
 - Parse failures degrade to raw markdown (never crash)
 - Network errors show clear recovery path
 
+## Code Quality
+
+### Linting
+
+ESLint is configured with strict TypeScript and React rules:
+
+```bash
+npm run lint
+```
+
+### Constants
+
+Magic numbers and configuration values are centralized in `src/lib/constants.ts`:
+
+- Recording constraints (min duration, min bytes)
+- UI configuration (textarea height, toast duration)
+- Conversation limits (history depth)
+- Project matching thresholds
+
+### TypeScript
+
+- Strict typing throughout with shared types between Electron and renderer
+- Discriminated unions for pipeline events
+- Type-safe IPC handlers
+
 ## Development
 
 ### Prerequisites
@@ -249,8 +274,9 @@ voxnote/
 │   │   ├── SettingsModal.tsx # Settings dialog
 │   │   └── AuthButton.tsx   # Login/signup + sync
 │   └── lib/
-│       ├── store.ts         # Zustand state
-│       ├── ipc.ts           # IPC wrappers
+│       ├── store.ts         # Zustand state management
+│       ├── ipc.ts           # IPC wrappers for Electron
+│       ├── constants.ts     # App-wide constants and configuration
 │       └── markdown.ts      # Utilities
 ├── package.json
 └── README.md

@@ -13,6 +13,12 @@ import type {
 } from '../../electron/shared/types';
 import type { ProposedAction, ActionExecutionResult } from '../../electron/shared/actions';
 import * as ipc from './ipc';
+import {
+  CONVERSATION_HISTORY_LIMIT,
+  DEFAULT_HISTORY_LIMIT,
+  PROJECT_SIMILARITY_THRESHOLD,
+  ACTIVE_PROJECT_SIMILARITY_THRESHOLD,
+} from './constants';
 
 // ============================================
 // PROJECT NAME MATCHING UTILITIES
@@ -54,7 +60,7 @@ function calculateSimilarity(a: string, b: string): number {
  * Find the most similar project by name
  * Returns the project if similarity >= threshold, otherwise null
  */
-function findSimilarProject(projects: Project[], name: string, threshold = 0.6): Project | null {
+function findSimilarProject(projects: Project[], name: string, threshold = PROJECT_SIMILARITY_THRESHOLD): Project | null {
   let bestMatch: Project | null = null;
   let bestScore = 0;
 
@@ -567,7 +573,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (activeProject) {
       // Check if the new name is similar to active project
       const similarity = calculateSimilarity(activeProject.name, name);
-      if (similarity >= 0.5) {
+      if (similarity >= ACTIVE_PROJECT_SIMILARITY_THRESHOLD) {
         console.log(`[Store] Using active project "${activeProject.name}" (similarity: ${similarity.toFixed(2)})`);
         return activeProject;
       }
@@ -713,7 +719,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   loadHistoryList: async () => {
-    const historyItems = await ipc.getHistory(30);
+    const historyItems = await ipc.getHistory(DEFAULT_HISTORY_LIMIT);
     set({ historyItems });
   },
 
@@ -768,7 +774,14 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ historyItems: [] });
   },
 
-  // Flow handlers
+  /**
+   * Processes received transcript from speech-to-text.
+   * Routes through intent detection to determine appropriate action:
+   * - create_artifact: Auto-detect mode and start enrichment
+   * - clarify: Ask follow-up question via clarification state machine
+   * - chat/help/query: Conversational response
+   * - settings/history/projects: UI navigation
+   */
   handleTranscriptReceived: async (transcript) => {
     const { addMessage, language, messages } = get();
 
@@ -786,7 +799,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
 
     // Build conversation history for context (last 10 messages)
-    const recentHistory = messages.slice(-10).map((m) => ({
+    const recentHistory = messages.slice(-CONVERSATION_HISTORY_LIMIT).map((m) => ({
       role: m.role as 'user' | 'assistant' | 'system',
       content: m.content,
     }));
@@ -1033,6 +1046,14 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
+  /**
+   * Handles text input from user (typed messages).
+   * Behavior varies by current phase:
+   * - If pending clarification exists: Resolves it directly (bypasses LLM re-routing)
+   * - awaiting_context: Combines with existing context and routes intent
+   * - awaiting_action: User is responding to mode selection
+   * - idle/done/error: Conversational mode with full intent routing
+   */
   handleUserMessage: async (text) => {
     const { phase, addMessage, selectedMode, pendingTranscript, language, messages, setSettingsOpen, pendingClarification, resolveClarification } = get();
 
@@ -1053,7 +1074,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     // Build conversation history for context (last 10 messages)
-    const recentHistory = messages.slice(-10).map((m) => ({
+    const recentHistory = messages.slice(-CONVERSATION_HISTORY_LIMIT).map((m) => ({
       role: m.role as 'user' | 'assistant' | 'system',
       content: m.content,
     }));
@@ -1101,6 +1122,9 @@ export const useAppStore = create<AppState>((set, get) => ({
             if (response) {
               set({ activeRunId: response.runId });
             }
+          }).catch((err) => {
+            console.error('Enrichment failed:', err);
+            set({ phase: 'error' });
           });
         } else if (intent && intent.intent === 'clarify') {
           // Still need more info - use clarification state machine
@@ -1145,6 +1169,9 @@ export const useAppStore = create<AppState>((set, get) => ({
             if (response) {
               set({ activeRunId: response.runId });
             }
+          }).catch((err) => {
+            console.error('Enrichment failed:', err);
+            set({ phase: 'error' });
           });
         }
       } catch (error) {
@@ -1171,6 +1198,9 @@ export const useAppStore = create<AppState>((set, get) => ({
           if (response) {
             set({ activeRunId: response.runId });
           }
+        }).catch((err) => {
+          console.error('Enrichment failed:', err);
+          set({ phase: 'error' });
         });
       }
     } else if (phase === 'awaiting_action') {
@@ -1201,6 +1231,9 @@ export const useAppStore = create<AppState>((set, get) => ({
             if (response) {
               set({ activeRunId: response.runId });
             }
+          }).catch((err) => {
+            console.error('Enrichment failed:', err);
+            set({ phase: 'error' });
           });
         } else if (intent && intent.intent === 'clarify') {
           // Need more info - use clarification state machine
@@ -1251,6 +1284,9 @@ export const useAppStore = create<AppState>((set, get) => ({
             if (response) {
               set({ activeRunId: response.runId });
             }
+          }).catch((err) => {
+            console.error('Enrichment failed:', err);
+            set({ phase: 'error' });
           });
         }
       } catch (error) {
@@ -1273,6 +1309,9 @@ export const useAppStore = create<AppState>((set, get) => ({
           if (response) {
             set({ activeRunId: response.runId });
           }
+        }).catch((err) => {
+          console.error('Enrichment failed:', err);
+          set({ phase: 'error' });
         });
       }
     } else if (phase === 'idle' || phase === 'done' || phase === 'error') {
@@ -1317,6 +1356,9 @@ export const useAppStore = create<AppState>((set, get) => ({
                 if (response) {
                   set({ activeRunId: response.runId });
                 }
+              }).catch((err) => {
+                console.error('Enrichment failed:', err);
+                set({ phase: 'error' });
               });
             }
             break;
@@ -1611,7 +1653,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  // Pipeline events
+  /**
+   * Subscribes to IPC pipeline events from Electron main process.
+   * Handles status changes, transcripts, results, and errors.
+   * Returns unsubscribe function for cleanup.
+   */
   subscribeToPipelineEvents: () => {
     return ipc.onPipelineEvent((event: PipelineEvent) => {
       const state = get();

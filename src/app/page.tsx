@@ -1,5 +1,19 @@
 'use client';
 
+/**
+ * VoxNote Main Page
+ *
+ * Primary UI for the voice-to-structured-notes application.
+ * Handles push-to-talk recording, mode selection, chat display,
+ * and window layout management (compact/expanded/withCanvas).
+ *
+ * Key Features:
+ * - Push-to-talk via Space key or mic button
+ * - 8 processing modes (meeting, tasks, email, ticket, devnote, clean, reminder, plan)
+ * - Real-time transcription and AI enrichment
+ * - History, projects, and contacts management
+ */
+
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { Settings, Mic, Send, X, FolderPlus, Calendar, Check, Loader2, Square } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -19,14 +33,17 @@ import * as ipc from '@/lib/ipc';
 import clsx from 'clsx';
 import type { ModeId } from '../../electron/shared/types';
 import type { ProposedAction } from '../../electron/shared/actions';
-
-// Minimum recording requirements
-const MIN_RECORDING_DURATION_MS = 700;
-const MIN_AUDIO_BYTES = 8000;
+import {
+  MIN_RECORDING_DURATION_MS,
+  MIN_AUDIO_BYTES,
+  RECORDING_CHUNK_INTERVAL_MS,
+  TEXTAREA_MAX_HEIGHT_PX,
+  ACTION_RESULT_TOAST_DURATION_MS,
+  SUPPORTED_AUDIO_MIME_TYPES,
+} from '@/lib/constants';
 
 function chooseRecordingMimeType(): string {
-  const mimeTypes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/ogg'];
-  for (const mimeType of mimeTypes) {
+  for (const mimeType of SUPPORTED_AUDIO_MIME_TYPES) {
     if (MediaRecorder.isTypeSupported(mimeType)) return mimeType;
   }
   return '';
@@ -178,7 +195,7 @@ export default function Home() {
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, TEXTAREA_MAX_HEIGHT_PX) + 'px';
     }
   }, [userInput]);
 
@@ -223,7 +240,11 @@ export default function Home() {
     };
   }, [loadSettings, loadHistoryList, loadProjects, subscribeToPipelineEvents, resetConversation]);
 
-  // Start recording with delta-time timer
+  /**
+   * Initiates voice recording via MediaRecorder API.
+   * Sets up audio stream, configures recorder with best available codec,
+   * and handles the recording lifecycle including validation and transcription.
+   */
   const handleStartRecording = useCallback(async () => {
     if (isRecording) return;
 
@@ -270,7 +291,7 @@ export default function Home() {
         }
       };
 
-      recorder.start(1000); // 1s chunks to reduce fragmentation issues
+      recorder.start(RECORDING_CHUNK_INTERVAL_MS);
       startRecording();
       // Timer is now managed by useEffect based on isRecording state
     } catch (error) {
@@ -340,7 +361,11 @@ export default function Home() {
   useEffect(() => { toggleHistoryRef.current = toggleHistory; }, [toggleHistory]);
   useEffect(() => { handleModeClickRef.current = handleModeClick; }, [handleModeClick]);
 
-  // Keyboard shortcuts - single stable registration
+  /**
+   * Global keyboard shortcut handler.
+   * Uses capture phase to intercept events before other handlers.
+   * Manages: Space (PTT), Escape (close/cancel), 1-8 (modes), H (history), Cmd+P (projects)
+   */
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -630,7 +655,7 @@ export default function Home() {
 
           {/* Input Area */}
           <div className="glass rounded-2xl p-2">
-            <div className="flex items-end gap-2">
+            <div className="flex items-center gap-2">
               {/* Recording indicator / Mic button */}
               <AnimatePresence mode="wait">
                 {isRecording ? (
@@ -685,7 +710,7 @@ export default function Home() {
                   'focus:outline-none',
                   'disabled:opacity-50'
                 )}
-                style={{ maxHeight: '120px' }}
+                style={{ maxHeight: `${TEXTAREA_MAX_HEIGHT_PX}px` }}
               />
 
               {/* Thinking indicator */}
@@ -932,7 +957,7 @@ export default function Home() {
                       success: result.success,
                       message: result.message || (result.success ? 'Erfolgreich ausgeführt' : 'Fehler'),
                     });
-                    setTimeout(() => setActionResult(null), 3000);
+                    setTimeout(() => setActionResult(null), ACTION_RESULT_TOAST_DURATION_MS);
                   }}
                   disabled={actionExecuting}
                   className="flex-1 px-3 py-2 text-sm bg-purple-500 text-white rounded-xl hover:bg-purple-400 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"

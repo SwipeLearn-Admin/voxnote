@@ -47,12 +47,15 @@ export function ProjectsPanel() {
     projectsPanelOpen,
     setProjectsPanelOpen,
     projects,
-    currentProject,
-    setCurrentProject,
+    activeProjectId,
+    setActiveProject,
     historyItems,
     loadProjects,
     loadHistoryList,
   } = useAppStore();
+
+  // Derive currentProject from activeProjectId
+  const currentProject = projects.find((p) => p.id === activeProjectId) || null;
 
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
   const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(new Set());
@@ -159,7 +162,7 @@ export function ProjectsPanel() {
   };
 
   const selectProject = (project: Project) => {
-    setCurrentProject(project);
+    setActiveProject(project.id);
   };
 
   const getProjectProgress = (plan: PlanData | undefined) => {
