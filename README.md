@@ -24,7 +24,7 @@ Knowledge workers spend significant time converting spoken information into stru
 | Global Hotkey Activation | ✅ `Cmd+Shift+Space` |
 | Structured Output (Markdown + Actions) | ✅ |
 
-> Tested on macOS. Windows/Linux builds possible via electron-builder.
+> Tested on macOS. Windows/Linux builds are untested but should work via electron-builder.
 
 ## Quick Start
 
@@ -142,7 +142,7 @@ VoxNote supports optional cloud sync via Supabase:
 1. **Sign Up**: Click the user icon in the header
 2. **Auto-Sync**: History syncs automatically on login
 3. **Manual Sync**: Click "Jetzt synchronisieren" in the user dropdown
-4. **Local-First**: Works fully offline, syncs when online
+4. **Local-First**: History works offline; transcription/enrichment require internet. Sync resumes when online
 
 ### Sync Strategy
 - **Pull on login**: Fetch cloud artifacts, merge with local
