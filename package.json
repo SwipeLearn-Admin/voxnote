@@ -1,0 +1,77 @@
+{
+  "name": "voxnote",
+  "version": "1.0.0",
+  "description": "Voice-to-structured-notes desktop app with AI enrichment",
+  "author": "VoxNote",
+  "license": "MIT",
+  "main": ".electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k \"next dev\" \"wait-on http://localhost:3000 && npm run electron:dev\"",
+    "build": "next build",
+    "electron:dev": "tsup electron/main.ts electron/preload.ts --outDir .electron --format cjs --external electron && electron .",
+    "electron:build": "tsup electron/main.ts electron/preload.ts --outDir .electron --format cjs --external electron",
+    "dist": "npm run build && npm run electron:build && electron-builder",
+    "lint": "next lint",
+    "eval": "DOTENV_CONFIG_PATH=.env.local npx ts-node --project eval/tsconfig.json -r dotenv/config eval/runner.ts",
+    "eval:mode": "npx ts-node --esm eval/runner.ts",
+    "eval:optimize": "npx ts-node --esm eval/runner.ts --optimize",
+    "eval:watch": "nodemon --watch eval --watch electron/shared --ext ts --exec 'npm run eval'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.93.1",
+    "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
+    "electron-store": "^8.2.0",
+    "framer-motion": "^11.18.2",
+    "lucide-react": "^0.460.0",
+    "next": "14.2.18",
+    "openai": "^4.72.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "uuid": "^11.0.3",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/uuid": "^10.0.0",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.1.6",
+    "nodemon": "^3.1.11",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.example.voxnote",
+    "productName": "VoxNote",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      ".electron/**/*",
+      "out/**/*"
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}

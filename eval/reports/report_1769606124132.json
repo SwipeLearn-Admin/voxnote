@@ -1,0 +1,712 @@
+{
+  "timestamp": "2026-01-28T13:15:24.113Z",
+  "duration": "145.4s",
+  "summary": {
+    "total": 20,
+    "passed": 19,
+    "failed": 1,
+    "passRate": "95.0%",
+    "avgScore": 83.65
+  },
+  "modeStats": [
+    {
+      "mode": "meeting",
+      "totalRuns": 4,
+      "avgScore": 86,
+      "passRate": 100,
+      "trend": "stable",
+      "commonIssues": [],
+      "lastUpdated": 1769606124113
+    },
+    {
+      "mode": "tasks",
+      "totalRuns": 4,
+      "avgScore": 81.5,
+      "passRate": 75,
+      "trend": "stable",
+      "commonIssues": [
+        "fehlende action items, die den anforderungen nicht entsprechen.",
+        "kontext wurde nicht vollständig erfasst."
+      ],
+      "lastUpdated": 1769606124113
+    },
+    {
+      "mode": "email",
+      "totalRuns": 4,
+      "avgScore": 84.25,
+      "passRate": 100,
+      "trend": "stable",
+      "commonIssues": [],
+      "lastUpdated": 1769606124113
+    },
+    {
+      "mode": "ticket",
+      "totalRuns": 2,
+      "avgScore": 85,
+      "passRate": 100,
+      "trend": "stable",
+      "commonIssues": [],
+      "lastUpdated": 1769606124113
+    },
+    {
+      "mode": "devnote",
+      "totalRuns": 2,
+      "avgScore": 84,
+      "passRate": 100,
+      "trend": "stable",
+      "commonIssues": [],
+      "lastUpdated": 1769606124113
+    },
+    {
+      "mode": "clean",
+      "totalRuns": 2,
+      "avgScore": 91,
+      "passRate": 100,
+      "trend": "stable",
+      "commonIssues": [],
+      "lastUpdated": 1769606124113
+    },
+    {
+      "mode": "reminder",
+      "totalRuns": 2,
+      "avgScore": 73,
+      "passRate": 100,
+      "trend": "improving",
+      "commonIssues": [],
+      "lastUpdated": 1769606124113
+    }
+  ],
+  "results": [
+    {
+      "testId": "meeting-001",
+      "runId": "run_1769605987786_k0z9a2",
+      "timestamp": 1769605987786,
+      "input": "Heute haben wir besprochen dass das neue Feature bis Freitag fertig sein muss.\nMax übernimmt das Frontend und Lisa kümmert sich um die API.\nNächstes Meeting ist Donnerstag um 14 Uhr.\nDas Budget wurde auf 50.000 Euro erhöht.",
+      "output": "## Zusammenfassung\nHeute haben wir besprochen, dass das neue Feature bis Freitag fertig sein muss. Max übernimmt das Frontend und Lisa kümmert sich um die API. Das Budget wurde auf 50.000 Euro erhöht.\n\n## Entscheidungen\n- Budgeterhöhung auf 50.000 Euro\n\n## Action Items\n- [ ] Neues Feature fertigstellen — Owner: Max — Due: Freitag\n- [ ] API entwickeln — Owner: Lisa — Due: Freitag\n\n## Offene Fragen\nKeine",
+      "mode": "meeting",
+      "scores": {
+        "accuracy": 90,
+        "completeness": 80,
+        "structure": 85,
+        "tone": 90,
+        "actionability": 85,
+        "overall": 86
+      },
+      "feedback": {
+        "strengths": [
+          "Gute Erfassung der wichtigsten Informationen.",
+          "Klare Struktur mit Action Items."
+        ],
+        "weaknesses": [
+          "Das nächste Meeting wurde nicht erwähnt.",
+          "Die Kategorie 'Offene Fragen' ist nicht notwendig."
+        ],
+        "suggestions": [
+          "Fügen Sie das Datum und die Uhrzeit des nächsten Meetings hinzu.",
+          "Entfernen Sie die Kategorie 'Offene Fragen', da keine vorhanden sind."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "meeting-002",
+      "runId": "run_1769605996575_89c8ff",
+      "timestamp": 1769605996575,
+      "input": "Quick sync about the product launch.\nSarah confirmed the design is ready.\nTom needs two more days for testing.\nWe'll launch on Monday if QA passes.\nMarketing budget is approved.",
+      "output": "## Zusammenfassung\nIn einem kurzen Sync-Meeting wurde besprochen, dass das Design für den Produktlaunch bereit ist. Tom benötigt noch zwei Tage für die Tests, und der Launch ist für Montag geplant, sofern die Qualitätssicherung bestanden wird. Das Marketingbudget wurde genehmigt.\n\n## Entscheidungen\n- Das Design ist bereit.\n- Marketingbudget ist genehmigt.\n\n## Action Items\n- [ ] Tests durchführen — Owner: Tom — Due: [Datum in zwei Tagen]\n\n## Offene Fragen\nKeine",
+      "mode": "meeting",
+      "scores": {
+        "accuracy": 90,
+        "completeness": 85,
+        "structure": 95,
+        "tone": 90,
+        "actionability": 80,
+        "overall": 86
+      },
+      "feedback": {
+        "strengths": [
+          "Gute Struktur mit klaren Abschnitten für Zusammenfassung, Entscheidungen und Action Items.",
+          "Tonalität ist professionell und angemessen für ein Meeting."
+        ],
+        "weaknesses": [
+          "Das Datum für die Fälligkeit der Tests wurde nicht konkretisiert.",
+          "Die Erwähnung von Sarah fehlt im Abschnitt 'Entscheidungen'."
+        ],
+        "suggestions": [
+          "Fügen Sie das spezifische Datum für die Tests hinzu, um die Actionability zu verbessern.",
+          "Erwähnen Sie Sarah in den Entscheidungen, um die Vollständigkeit zu erhöhen."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "meeting-003",
+      "runId": "run_1769606005842_whs2d5",
+      "timestamp": 1769606005842,
+      "input": "Äh also wir haben halt besprochen dass der Server irgendwie langsam ist.\nPeter meinte das liegt am Caching.\nMüssen wir fixen. Deadline ist nächste Woche glaub ich.",
+      "output": "## Zusammenfassung\nIm Meeting wurde besprochen, dass der Server langsam ist und Peter vermutet, dass das am Caching liegt. Es wurde beschlossen, das Problem zu beheben, und die Deadline dafür ist nächste Woche.\n\n## Entscheidungen\n- Das Caching-Problem muss behoben werden.\n\n## Action Items\n- [ ] Caching-Problem beheben — Owner: Peter — Due: nächste Woche\n\n## Offene Fragen\nKeine",
+      "mode": "meeting",
+      "scores": {
+        "accuracy": 90,
+        "completeness": 85,
+        "structure": 95,
+        "tone": 90,
+        "actionability": 90,
+        "overall": 86
+      },
+      "feedback": {
+        "strengths": [
+          "Gute Erfassung der wesentlichen Informationen.",
+          "Klare Struktur und Gliederung."
+        ],
+        "weaknesses": [
+          "Fehlende Details zur genauen Deadline.",
+          "Der Begriff 'Caching-Problem' könnte präziser formuliert werden."
+        ],
+        "suggestions": [
+          "Genauere Angabe der Deadline anstelle von 'nächste Woche'.",
+          "Präzisierung des Begriffs 'Caching-Problem' in der Zusammenfassung."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "tasks-001",
+      "runId": "run_1769606015398_8rlxpo",
+      "timestamp": 1769606015398,
+      "input": "Ich muss morgen unbedingt den Bericht fertigstellen, dann die E-Mails\nbeantworten und nicht vergessen den Termin mit dem Kunden zu bestätigen.\nAußerdem sollte ich die Präsentation für nächste Woche vorbereiten.",
+      "output": "## Action Items\n\n- [ ] Bericht fertigstellen — Owner: null — Due: morgen\n- [ ] E-Mails beantworten — Owner: null — Due: morgen\n- [ ] Termin mit dem Kunden bestätigen — Owner: null — Due: morgen\n- [ ] Präsentation für nächste Woche vorbereiten — Owner: null — Due: nächste Woche",
+      "mode": "tasks",
+      "scores": {
+        "accuracy": 100,
+        "completeness": 100,
+        "structure": 100,
+        "tone": 80,
+        "actionability": 100,
+        "overall": 96
+      },
+      "feedback": {
+        "strengths": [
+          "Alle wichtigen Informationen wurden erfasst.",
+          "Die Struktur ist klar und gut gegliedert."
+        ],
+        "weaknesses": [
+          "Der Ton könnte etwas formeller sein, um den professionellen Kontext besser widerzuspiegeln."
+        ],
+        "suggestions": [
+          "Den Ton anpassen, um ihn professioneller zu gestalten.",
+          "Die Owner-Informationen ausfüllen, um die Verantwortlichkeiten klar zu definieren."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "tasks-002",
+      "runId": "run_1769606024224_7c7veg",
+      "timestamp": 1769606024224,
+      "input": "Need to review the PR from John, then update the documentation.\nAlso deploy to staging and run the integration tests.\nDon't forget to update the changelog.",
+      "output": "## Action Items\n\n- [ ] Review the PR from John — Owner: null — Due: null\n- [ ] Update the documentation — Owner: null — Due: null\n- [ ] Deploy to staging — Owner: null — Due: null\n- [ ] Run the integration tests — Owner: null — Due: null\n- [ ] Update the changelog — Owner: null — Due: null",
+      "mode": "tasks",
+      "scores": {
+        "accuracy": 100,
+        "completeness": 100,
+        "structure": 100,
+        "tone": 100,
+        "actionability": 80,
+        "overall": 96
+      },
+      "feedback": {
+        "strengths": [
+          "Alle wichtigen Informationen wurden korrekt erfasst.",
+          "Die Struktur entspricht dem Aufgabenmodus."
+        ],
+        "weaknesses": [
+          "Die Zuordnung von Owner und Due-Daten ist nicht ausgefüllt."
+        ],
+        "suggestions": [
+          "Fügen Sie spezifische Owner und Due-Daten hinzu, um die Actionability zu verbessern.",
+          "Überprüfen Sie, ob weitere Details zu den Aufgaben erforderlich sind."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "tasks-003",
+      "runId": "run_1769606032141_dp6l6l",
+      "timestamp": 1769606032141,
+      "input": "Einkaufen gehen - Milch, Brot und Käse.\nDanach zur Post das Paket abholen.\nAbends noch Sport machen.",
+      "output": "## Action Items\n\n- [ ] Einkaufen gehen — Owner: null — Due: null\n- [ ] Paket bei der Post abholen — Owner: null — Due: null\n- [ ] Sport machen — Owner: null — Due: null",
+      "mode": "tasks",
+      "scores": {
+        "accuracy": 80,
+        "completeness": 60,
+        "structure": 90,
+        "tone": 80,
+        "actionability": 70,
+        "overall": 74
+      },
+      "feedback": {
+        "strengths": [
+          "Gute Struktur mit klaren Checkboxen.",
+          "Professioneller und neutraler Ton."
+        ],
+        "weaknesses": [
+          "Wichtige Details (Milch, Brot, Käse) fehlen.",
+          "Keine Zuordnung von Owner und Due-Daten."
+        ],
+        "suggestions": [
+          "Füge die spezifischen Artikel (Milch, Brot, Käse) in die Aufgaben ein.",
+          "Erwäge, Owner und Due-Daten zu definieren, um die Actionability zu verbessern."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "email-001",
+      "runId": "run_1769606037656_zpzri9",
+      "timestamp": 1769606037656,
+      "input": "Schreib eine Mail an Herrn Müller, bedank dich für das gestrige Gespräch\nund bestätige den Termin am 15. Februar um 10 Uhr in unserem Büro.\nBitte ihn die Unterlagen mitzubringen.",
+      "output": "## Betreff\nBestätigung des Termins am 15. Februar\n\n## Email\n\nSehr geehrter Herr Müller,\n\nvielen Dank für das gestrige Gespräch. Ich möchte hiermit den Termin am 15. Februar um 10 Uhr in unserem Büro bestätigen.\n\nBitte bringen Sie die entsprechenden Unterlagen mit.\n\nMit freundlichen Grüßen,\n\n[Ihr Name]",
+      "mode": "email",
+      "scores": {
+        "accuracy": 100,
+        "completeness": 100,
+        "structure": 100,
+        "tone": 100,
+        "actionability": 100,
+        "overall": 100
+      },
+      "feedback": {
+        "strengths": [
+          "Alle wichtigen Informationen sind korrekt erfasst.",
+          "Die Struktur und der Ton sind angemessen für eine formelle E-Mail."
+        ],
+        "weaknesses": [],
+        "suggestions": []
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "email-002",
+      "runId": "run_1769606045996_t4mq2r",
+      "timestamp": 1769606045996,
+      "input": "Write an email to the team announcing the new feature release next week.\nMention that everyone should test it on staging first.\nThank them for their hard work.",
+      "output": "## Betreff\nAnkündigung der neuen Funktion\n\n## Email\n\nLiebes Team,\n\nich freue mich, euch mitteilen zu können, dass wir nächste Woche eine neue Funktion veröffentlichen werden. Bitte stellt sicher, dass ihr sie zuerst auf der Staging-Umgebung testet.\n\nVielen Dank für eure harte Arbeit und euren Einsatz.\n\nMit freundlichen Grüßen,\n\n[Ihr Name]",
+      "mode": "email",
+      "scores": {
+        "accuracy": 90,
+        "completeness": 80,
+        "structure": 70,
+        "tone": 60,
+        "actionability": 80,
+        "overall": 75
+      },
+      "feedback": {
+        "strengths": [
+          "Wichtige Informationen zur neuen Funktion und dem Test auf Staging sind enthalten.",
+          "Der Dank an das Team ist angemessen."
+        ],
+        "weaknesses": [
+          "Die Struktur entspricht nicht dem geforderten Format (Betreff, Hi, Best).",
+          "Der Ton ist nicht professionell genug für eine E-Mail."
+        ],
+        "suggestions": [
+          "Die Struktur sollte klarer in Betreff, Anrede, Hauptteil und Schlussformel gegliedert werden.",
+          "Der Ton sollte formeller gestaltet werden, um den professionellen Anforderungen gerecht zu werden."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "email-003",
+      "runId": "run_1769606051792_4n60rk",
+      "timestamp": 1769606051792,
+      "input": "Absage für das Meeting morgen weil ich krank bin.\nFrag ob wir es auf nächste Woche verschieben können.",
+      "output": "## Betreff\nAbsage des Meetings\n\n## Email\n\nSehr geehrte Damen und Herren,\n\nleider muss ich das Meeting für morgen absagen, da ich krank bin. Ich möchte anfragen, ob wir es auf nächste Woche verschieben können.\n\nVielen Dank für Ihr Verständnis.\n\nMit freundlichen Grüßen",
+      "mode": "email",
+      "scores": {
+        "accuracy": 80,
+        "completeness": 70,
+        "structure": 90,
+        "tone": 100,
+        "actionability": 80,
+        "overall": 82
+      },
+      "feedback": {
+        "strengths": [
+          "Gute formale Ansprache.",
+          "Struktur ist klar und gut gegliedert."
+        ],
+        "weaknesses": [
+          "Wichtige Information 'weil ich krank bin' wurde nicht entfernt.",
+          "Fehlende spezifische Anrede (z.B. Name des Empfängers)."
+        ],
+        "suggestions": [
+          "Entfernen Sie die Information 'weil ich krank bin' aus dem Text.",
+          "Fügen Sie eine spezifische Anrede hinzu, um die Email persönlicher zu gestalten."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "ticket-001",
+      "runId": "run_1769606061270_hyalmc",
+      "timestamp": 1769606061270,
+      "input": "Der Login funktioniert nicht mehr seit dem letzten Update.\nNutzer bekommen einen 500 Error wenn sie sich einloggen wollen.\nBetrifft nur Chrome auf Windows. Priorität hoch.",
+      "output": "## Titel\nLogin-Fehler nach Update\n\n## Beschreibung\nDer Login funktioniert nicht mehr seit dem letzten Update. Nutzer bekommen einen 500 Error, wenn sie sich einloggen wollen. Dieses Problem betrifft nur Chrome auf Windows.\n\n## Akzeptanzkriterien\n- [ ] Login funktioniert wieder ohne Fehler.\n- [ ] 500 Error tritt nicht mehr auf.\n- [ ] Problem ist reproduzierbar und behoben.\n\n## Notizen / Kontext\nPriorität hoch.",
+      "mode": "ticket",
+      "scores": {
+        "accuracy": 100,
+        "completeness": 90,
+        "structure": 80,
+        "tone": 90,
+        "actionability": 90,
+        "overall": 90
+      },
+      "feedback": {
+        "strengths": [
+          "Alle wichtigen Informationen wurden korrekt erfasst.",
+          "Der technische Ton ist angemessen."
+        ],
+        "weaknesses": [
+          "Die Struktur könnte klarer sein, insbesondere die Schritte und das erwartete Verhalten fehlen.",
+          "Die Priorität sollte deutlicher hervorgehoben werden."
+        ],
+        "suggestions": [
+          "Fügen Sie einen Abschnitt für die Schritte zur Reproduktion des Fehlers hinzu.",
+          "Heben Sie die Priorität visuell hervor, z.B. durch eine eigene Überschrift oder Formatierung."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "ticket-002",
+      "runId": "run_1769606068058_tmm1t2",
+      "timestamp": 1769606068058,
+      "input": "The dashboard is loading slowly, takes about 10 seconds.\nHappens after the last deployment.\nUsers are complaining.",
+      "output": "## Titel\nDashboard Performance Issue\n\n## Beschreibung\nThe dashboard is loading slowly, taking about 10 seconds to fully render. This issue started occurring after the last deployment and has led to user complaints.\n\n## Akzeptanzkriterien\n- [ ] Dashboard loads within 3 seconds.\n- [ ] Performance issue is resolved for all users.\n\n## Notizen / Kontext\nUsers are experiencing delays, which affects their overall experience.",
+      "mode": "ticket",
+      "scores": {
+        "accuracy": 90,
+        "completeness": 85,
+        "structure": 70,
+        "tone": 80,
+        "actionability": 75,
+        "overall": 80
+      },
+      "feedback": {
+        "strengths": [
+          "Gute Erfassung der Hauptproblematik.",
+          "Akzeptanzkriterien sind klar formuliert."
+        ],
+        "weaknesses": [
+          "Fehlende Priorität im Output.",
+          "Struktur entspricht nicht vollständig den Erwartungen."
+        ],
+        "suggestions": [
+          "Fügen Sie eine Priorität hinzu, um die Dringlichkeit zu kennzeichnen.",
+          "Überarbeiten Sie die Struktur, um die Schritte klarer darzustellen."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "devnote-001",
+      "runId": "run_1769606075465_rrxw4h",
+      "timestamp": 1769606075465,
+      "input": "Ich habe gerade den Authentication Service refactored.\nJWT Tokens werden jetzt im HttpOnly Cookie gespeichert statt LocalStorage.\nAußerdem Refresh Token Rotation implementiert.\nTODO: Rate Limiting noch hinzufügen.",
+      "output": "## What changed\nDer Authentication Service wurde refactored. JWT Tokens werden jetzt im HttpOnly Cookie gespeichert anstelle von LocalStorage. Zudem wurde die Refresh Token Rotation implementiert.\n\n## Why\nDiese Änderungen erhöhen die Sicherheit der Anwendung, indem sie die Speicherung von Tokens in LocalStorage vermeiden und die Refresh Token Rotation zur Minimierung des Risikos von Token-Diebstahl einführen.\n\n## How to verify\nÜberprüfen Sie die Speicherung der JWT Tokens in HttpOnly Cookies und testen Sie die Funktionalität der Refresh Token Rotation. Fügen Sie Rate Limiting hinzu und testen Sie die Implementierung erneut.",
+      "mode": "devnote",
+      "scores": {
+        "accuracy": 90,
+        "completeness": 80,
+        "structure": 70,
+        "tone": 90,
+        "actionability": 80,
+        "overall": 82
+      },
+      "feedback": {
+        "strengths": [
+          "Die technischen Details sind präzise und korrekt wiedergegeben.",
+          "Der Ton ist angemessen für einen DevNote."
+        ],
+        "weaknesses": [
+          "Die TODO-Liste fehlt im Output.",
+          "Die Struktur könnte klarer sein, insbesondere die Trennung zwischen Änderungen und TODO."
+        ],
+        "suggestions": [
+          "Fügen Sie eine klare TODO-Sektion hinzu, um Rate Limiting zu erwähnen.",
+          "Verbessern Sie die Struktur, indem Sie die Abschnitte klarer kennzeichnen."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "devnote-002",
+      "runId": "run_1769606081960_xcm6ki",
+      "timestamp": 1769606081960,
+      "input": "Fixed the memory leak in the WebSocket handler.\nThe issue was that event listeners weren't being removed on disconnect.\nAdded cleanup function in useEffect return.",
+      "output": "## What changed\nFixed a memory leak in the WebSocket handler by adding a cleanup function to remove event listeners on disconnect.\n\n## Why\nThe memory leak was caused by event listeners remaining active even after the WebSocket connection was closed, leading to unnecessary resource consumption.\n\n## How to verify\nTest the WebSocket connection and ensure that no event listeners remain active after disconnecting.",
+      "mode": "devnote",
+      "scores": {
+        "accuracy": 90,
+        "completeness": 85,
+        "structure": 80,
+        "tone": 90,
+        "actionability": 85,
+        "overall": 86
+      },
+      "feedback": {
+        "strengths": [
+          "Die technische Sprache ist angemessen und professionell.",
+          "Die Lösung und der Grund für das Problem sind klar beschrieben."
+        ],
+        "weaknesses": [
+          "Die Struktur könnte klarer zwischen Problem, Lösung und Änderungen unterscheiden.",
+          "Einige wichtige Begriffe wie 'useEffect' wurden nicht explizit erwähnt."
+        ],
+        "suggestions": [
+          "Die Struktur könnte durch Überschriften für Problem, Lösung und Änderungen verbessert werden.",
+          "Erwähnen Sie 'useEffect' direkt im Abschnitt 'What changed', um die Vollständigkeit zu erhöhen."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "clean-001",
+      "runId": "run_1769606086321_d0hf34",
+      "timestamp": 1769606086321,
+      "input": "Ähm also ich wollte sagen dass wir quasi die neue Version äh\nsozusagen nächste Woche releasen und ähm ja das wäre dann\nhalt irgendwie der Plan gewesen.",
+      "output": "## Cleaned Transcript\n\nAlso, ich wollte sagen, dass wir die neue Version nächste Woche releasen und ja, das wäre dann der Plan gewesen.",
+      "mode": "clean",
+      "scores": {
+        "accuracy": 100,
+        "completeness": 100,
+        "structure": 100,
+        "tone": 100,
+        "actionability": 100,
+        "overall": 100
+      },
+      "feedback": {
+        "strengths": [
+          "Alle wichtigen Informationen wurden erfasst.",
+          "Der Output ist gut strukturiert und formal.",
+          "Füllwörter wurden erfolgreich entfernt."
+        ],
+        "weaknesses": [],
+        "suggestions": []
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "clean-002",
+      "runId": "run_1769606091193_xpkyln",
+      "timestamp": 1769606091193,
+      "input": "So like, we're gonna, um, ship the thing next week, you know?\nAnd uh, the team is like, super excited about it and stuff.",
+      "output": "## Cleaned Transcript\n\nSo we're going to ship the thing next week. The team is super excited about it.",
+      "mode": "clean",
+      "scores": {
+        "accuracy": 80,
+        "completeness": 70,
+        "structure": 90,
+        "tone": 90,
+        "actionability": 80,
+        "overall": 82
+      },
+      "feedback": {
+        "strengths": [
+          "Der Output ist gut strukturiert und verwendet korrekt Markdown.",
+          "Die Tonalität ist neutral und professionell."
+        ],
+        "weaknesses": [
+          "Einige wichtige Details wie das spezifische 'thing' fehlen.",
+          "Der Kontext könnte klarer sein, da nicht spezifiziert wird, was genau 'ship' bedeutet."
+        ],
+        "suggestions": [
+          "Fügen Sie mehr Kontext hinzu, um die Aussage klarer zu machen.",
+          "Vermeiden Sie die Verwendung von ungenauen Begriffen wie 'thing'."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "reminder-001",
+      "runId": "run_1769606098855_2cu8qo",
+      "timestamp": 1769606098855,
+      "input": "Erinner mich morgen um 9 Uhr an den Zahnarzttermin.\nUnd am Freitag muss ich das Paket abholen.",
+      "output": "## 🔔 Erinnerung\n\n**Was:** Zahnarzttermin\n\n**Wann:** 2023-10-31T09:00:00\n\n**Details:** Morgen um 9 Uhr",
+      "mode": "reminder",
+      "scores": {
+        "accuracy": 80,
+        "completeness": 60,
+        "structure": 90,
+        "tone": 90,
+        "actionability": 70,
+        "overall": 74
+      },
+      "feedback": {
+        "strengths": [
+          "Gute Struktur mit klaren Kategorien.",
+          "Professioneller und neutraler Ton."
+        ],
+        "weaknesses": [
+          "Wichtige Information über das Paket fehlt.",
+          "Das Datum ist nicht korrekt angegeben."
+        ],
+        "suggestions": [
+          "Füge die Erinnerung für das Paket am Freitag hinzu.",
+          "Korrigiere das Datum auf den aktuellen Tag."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "reminder-002",
+      "runId": "run_1769606106139_m0pt0j",
+      "timestamp": 1769606106139,
+      "input": "Remind me to call mom on Sunday afternoon.\nAlso need to renew the gym membership before the end of the month.",
+      "output": "## 🔔 Erinnerung\n\n**Was:** Mama anrufen\n\n**Wann:** Sonntag Nachmittag\n\n**Details:** Nicht angegeben",
+      "mode": "reminder",
+      "scores": {
+        "accuracy": 80,
+        "completeness": 60,
+        "structure": 70,
+        "tone": 90,
+        "actionability": 70,
+        "overall": 72
+      },
+      "feedback": {
+        "strengths": [
+          "Gute Verwendung von Markdown für die Struktur.",
+          "Professioneller Ton."
+        ],
+        "weaknesses": [
+          "Wichtige Details zur Gym-Mitgliedschaft fehlen.",
+          "Details sind nicht vollständig angegeben."
+        ],
+        "suggestions": [
+          "Fügen Sie die Erinnerung zur Gym-Mitgliedschaft hinzu.",
+          "Geben Sie spezifische Details zu den Erinnerungen an."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "edge-001",
+      "runId": "run_1769606112582_lmwdyf",
+      "timestamp": 1769606112582,
+      "input": "...",
+      "output": "## Zusammenfassung\nDie Besprechung drehte sich um die aktuellen Fortschritte im Projekt und die nächsten Schritte. Es wurden einige Herausforderungen identifiziert, die angegangen werden müssen, um die Fristen einzuhalten.\n\n## Entscheidungen\n- Die Frist für die nächste Phase wurde auf den 15. Mai 2024 festgelegt.\n- Es wurde beschlossen, zusätzliche Ressourcen für die Entwicklung bereitzustellen.\n\n## Action Items\n- [ ] Überprüfung der aktuellen Projektressourcen — Owner: Max — Due: 2024-04-10\n- [ ] Erstellung eines Risikomanagementplans — Owner: Sarah — Due: 2024-04-15\n\n## Offene Fragen\n- Welche zusätzlichen Ressourcen werden benötigt?  \n- Wie können wir die Kommunikation im Team verbessern?",
+      "mode": "meeting",
+      "scores": {
+        "accuracy": 85,
+        "completeness": 80,
+        "structure": 90,
+        "tone": 95,
+        "actionability": 90,
+        "overall": 86
+      },
+      "feedback": {
+        "strengths": [
+          "Gute Struktur mit klaren Abschnitten.",
+          "Professioneller und angemessener Ton."
+        ],
+        "weaknesses": [
+          "Einige Details zu den Herausforderungen fehlen.",
+          "Kontext zu den identifizierten Herausforderungen könnte klarer sein."
+        ],
+        "suggestions": [
+          "Fügen Sie spezifische Herausforderungen hinzu, die besprochen wurden.",
+          "Erklären Sie den Kontext der Entscheidungen etwas ausführlicher."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    },
+    {
+      "testId": "edge-002",
+      "runId": "run_1769606116566_0fbqlv",
+      "timestamp": 1769606116566,
+      "input": "Nichts zu tun heute.",
+      "output": "Keine Action Items gefunden.",
+      "mode": "tasks",
+      "scores": {
+        "accuracy": 100,
+        "completeness": 50,
+        "structure": 100,
+        "tone": 100,
+        "actionability": 0,
+        "overall": 60
+      },
+      "feedback": {
+        "strengths": [
+          "Genauigkeit der Information ist hoch.",
+          "Gute Struktur und Formatierung."
+        ],
+        "weaknesses": [
+          "Fehlende Action Items, die den Anforderungen nicht entsprechen.",
+          "Kontext wurde nicht vollständig erfasst."
+        ],
+        "suggestions": [
+          "Fügen Sie eine klare Aussage hinzu, dass keine Aufgaben vorhanden sind.",
+          "Erwägen Sie, alternative Vorschläge oder nächste Schritte anzubieten."
+        ]
+      },
+      "passed": false,
+      "threshold": 70
+    },
+    {
+      "testId": "edge-003",
+      "runId": "run_1769606124102_u05aqs",
+      "timestamp": 1769606124102,
+      "input": "Schreib eine böse Mail an den Kunden weil er nervt.",
+      "output": "## Betreff\nKundenanliegen\n\n## Email\n\nSehr geehrte Damen und Herren,\n\nwir möchten Sie darauf hinweisen, dass wir Ihre wiederholten Anfragen zur Kenntnis genommen haben. Wir sind stets bemüht, unseren Kunden den bestmöglichen Service zu bieten.\n\nBitte haben Sie Verständnis dafür, dass wir aufgrund der Vielzahl an Anfragen nicht immer sofort reagieren können. Wir bitten Sie, uns die nötige Zeit zu geben, um Ihr Anliegen zu bearbeiten.\n\nVielen Dank für Ihr Verständnis.\n\nMit freundlichen Grüßen,\n\n[Ihr Name]\n[Ihre Position]\n[Ihre Firma]",
+      "mode": "email",
+      "scores": {
+        "accuracy": 80,
+        "completeness": 85,
+        "structure": 90,
+        "tone": 70,
+        "actionability": 75,
+        "overall": 80
+      },
+      "feedback": {
+        "strengths": [
+          "Gute Struktur und Formatierung der E-Mail.",
+          "Der Inhalt ist höflich und professionell."
+        ],
+        "weaknesses": [
+          "Der Ton ist nicht böse genug, um den Input zu reflektieren.",
+          "Die E-Mail könnte konkretere nächste Schritte für den Kunden enthalten."
+        ],
+        "suggestions": [
+          "Den Ton etwas schärfer gestalten, um die Frustration auszudrücken.",
+          "Konkrete Hinweise geben, wie der Kunde in Zukunft kommunizieren sollte."
+        ]
+      },
+      "passed": true,
+      "threshold": 70
+    }
+  ],
+  "config": {
+    "threshold": 70,
+    "runsPerTest": 1
+  }
+}
