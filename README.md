@@ -12,7 +12,19 @@ Knowledge workers spend significant time converting spoken information into stru
 - Understands context and asks clarifying questions when needed
 - Auto-detects the best output format (meeting, tasks, email, reminder, etc.)
 - Proposes actionable follow-ups (create project folders, add calendar events)
-- Works offline-first with optional cloud sync
+- Stores data locally with optional cloud sync
+
+## Challenge Requirements
+
+| Requirement | Status |
+|-------------|--------|
+| Desktop App (Electron) | ✅ |
+| Next.js Renderer | ✅ |
+| Voice Pipeline (Record → Transcribe → Enrich) | ✅ |
+| Global Hotkey Activation | ✅ `Cmd+Shift+Space` |
+| Structured Output (Markdown + Actions) | ✅ |
+
+> Tested on macOS. Windows/Linux builds possible via electron-builder.
 
 ## Quick Start
 
@@ -135,7 +147,7 @@ VoxNote supports optional cloud sync via Supabase:
 ### Sync Strategy
 - **Pull on login**: Fetch cloud artifacts, merge with local
 - **Push on create**: New local entries upload to cloud
-- **Conflict resolution**: Cloud wins for same-ID conflicts
+- **Conflict resolution**: Last-write-wins (newest `updated_at` timestamp)
 
 ## Privacy & Security
 
@@ -150,7 +162,7 @@ VoxNote supports optional cloud sync via Supabase:
 
 | Data | Location | Format |
 |------|----------|--------|
-| Settings | electron-store | Encrypted JSON |
+| Settings | electron-store | JSON (unencrypted) |
 | History | userData/history.jsonl | JSONL (one entry per line) |
 | Audio | Temp directory | Deleted after transcription |
 | Cloud Sync | Supabase (optional) | PostgreSQL with RLS |
@@ -180,7 +192,8 @@ Network connection issue. Check your internet connection and try again.
 
 ### 1. Local-First Architecture
 - All data stored locally (history.jsonl, electron-store)
-- Works fully offline (except API calls)
+- History browsing and project context work fully offline
+- Transcription and enrichment require network access (OpenAI API)
 - Cloud sync is opt-in, not required
 
 ### 2. Global API Key (48h Challenge)
