@@ -159,7 +159,8 @@ export type IntentType =
   | 'list_projects'
   | 'create_project'
   | 'ambiguous_project'
-  | 'list_contacts';
+  | 'list_contacts'
+  | 'query_tasks';
 
 export type ProjectAction = 'add_artifact' | 'switch_to' | 'update';
 

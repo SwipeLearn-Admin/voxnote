@@ -48,17 +48,50 @@ function getTempDir(): string {
 /**
  * Normalize audio data from various formats to Buffer.
  * Supports: ArrayBuffer, Uint8Array, number[] (legacy fallback)
+ * Uses duck-typing for cross-context compatibility in Electron.
  */
 function normalizeAudioToBuffer(audio: AudioData): Buffer {
-  if (Array.isArray(audio)) {
-    // Legacy fallback: number[]
-    return Buffer.from(Uint8Array.from(audio));
+  // Handle Node.js Buffer directly
+  if (Buffer.isBuffer(audio)) {
+    return audio;
   }
+
+  // Handle Uint8Array (use duck-typing for cross-context compatibility)
   if (audio instanceof Uint8Array) {
     return Buffer.from(audio);
   }
-  // ArrayBuffer
-  return Buffer.from(new Uint8Array(audio));
+
+  // Handle Array (number[])
+  if (Array.isArray(audio)) {
+    return Buffer.from(new Uint8Array(audio));
+  }
+
+  // Handle ArrayBuffer
+  if (audio instanceof ArrayBuffer) {
+    return Buffer.from(new Uint8Array(audio));
+  }
+
+  // Duck-type check for Uint8Array-like objects from IPC
+  if (audio && typeof audio === 'object') {
+    const obj = audio as Record<string, unknown>;
+
+    // Check if it has byteLength (Uint8Array-like)
+    if (typeof obj.byteLength === 'number' && obj.byteLength > 0) {
+      const arr = new Uint8Array(obj.byteLength);
+      for (let i = 0; i < obj.byteLength; i++) {
+        arr[i] = (obj as unknown as Uint8Array)[i] || 0;
+      }
+      return Buffer.from(arr);
+    }
+
+    // Check for Buffer serialization format: { type: 'Buffer', data: [...] }
+    if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
+      return Buffer.from(new Uint8Array(obj.data as number[]));
+    }
+  }
+
+  console.error('[normalizeAudioToBuffer] Could not normalize audio:', typeof audio);
+  return Buffer.alloc(0);
 }
 
 /**

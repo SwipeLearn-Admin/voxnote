@@ -110,7 +110,8 @@ export default function Home() {
   // Background hooks
   const mouse = useMouse();
   const energy = useEnergy(mediaStream, isRecording);
-  const isThinking = phase === 'transcribing' || phase === 'enriching';
+  // Only show floating indicator for transcribing - enriching shows "Erstelle X..." as a message
+  const isThinking = phase === 'transcribing';
 
   // Refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -387,7 +388,7 @@ export default function Home() {
         });
 
         if (shouldRecord) {
-          const canRecord = ['idle', 'done', 'error', 'awaiting_action'].includes(state.phase);
+          const canRecord = ['idle', 'done', 'error', 'awaiting_action', 'awaiting_context'].includes(state.phase);
           if (canRecord && !state.isRecording) {
             e.preventDefault();
             handleStartRecordingRef.current();
@@ -403,7 +404,7 @@ export default function Home() {
         e.preventDefault();
         if (settingsOpenRef.current) {
           setSettingsOpen(false);
-        } else if (phaseRef.current === 'transcribing' || phaseRef.current === 'enriching') {
+        } else if (['transcribing', 'enriching'].includes(phaseRef.current)) {
           handleCancelRef.current();
         } else {
           ipc.hideOverlay();
@@ -585,7 +586,7 @@ export default function Home() {
                     <Loader2 className="w-4 h-4 text-white/60" />
                   </motion.div>
                   <span className="text-white/60 text-sm">
-                    {phase === 'transcribing' ? 'Transkribiere...' : 'Verarbeite...'}
+                    Transkribiere...
                   </span>
                 </div>
               </motion.div>

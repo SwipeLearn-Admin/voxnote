@@ -109,6 +109,14 @@ export const IntentSchema = z.discriminatedUnion('intent', [
     response: z.string().optional(),
     confidence: z.number().min(0).max(1),
   }),
+
+  // User wants to see tasks/action items in current project
+  z.object({
+    intent: z.literal('query_tasks'),
+    projectName: z.string().optional(), // If user specified a project
+    response: z.string().optional(),
+    confidence: z.number().min(0).max(1),
+  }),
 ]);
 
 export type Intent = z.infer<typeof IntentSchema>;
@@ -167,6 +175,10 @@ Wenn User "das Projekt" / "zum Projekt hinzufügen" sagt OHNE konkreten Namen UN
 Wenn User seine Kontakte sehen/verwalten will.
 {"intent": "list_contacts", "response": "Ich öffne deine Kontakte.", "confidence": 0.95}
 
+### query_tasks
+Wenn User nach offenen Aufgaben/Tasks im aktuellen Projekt fragt.
+{"intent": "query_tasks", "response": "Ich zeige dir die offenen Aufgaben.", "confidence": 0.95}
+
 ### chat
 Für Begrüßungen und allgemeinen Chat.
 {"intent": "chat", "response": "<freundliche antwort>", "confidence": 0.9}
@@ -191,6 +203,12 @@ User: "Erstelle ein Projekt namens VoxNote App"
 
 User: "Zeig mir meine Kontakte" / "Wer ist in meinem Team?" / "Kontaktliste"
 → {"intent": "list_contacts", "response": "Ich öffne deine Kontakte.", "confidence": 0.95}
+
+User: "Welche Aufgaben sind noch offen?" / "Was muss ich noch erledigen?" / "Zeig mir meine Tasks"
+→ {"intent": "query_tasks", "response": "Ich zeige dir die offenen Aufgaben in deinem Projekt.", "confidence": 0.95}
+
+User: "Welche Aufgaben sind noch zu erledigen in diesem Projekt?"
+→ {"intent": "query_tasks", "response": "Ich zeige dir die offenen Aufgaben.", "confidence": 0.95}
 
 User: "Ich möchte eine App erstellen" / "Ich will ein Projekt starten" / "Hilf mir bei meinem Projekt"
 → {"intent": "clarify", "mode": "plan", "missingField": "goal", "question": "Super, ich helfe dir gerne dabei einen Plan zu erstellen! Was soll die App können? Beschreib mir kurz die Hauptfunktion.", "partialContext": "App erstellen", "confidence": 0.95}

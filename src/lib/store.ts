@@ -806,22 +806,8 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     // Auto-detect mode using intent router
     try {
-      addMessage({
-        role: 'assistant',
-        content: 'Analysiere...',
-        kind: 'status',
-        isStreaming: true,
-      });
-
+      // Note: No status message added here - page.tsx shows the phase indicator
       const intent = await ipc.routeIntent(transcript, recentHistory);
-
-      // Remove the "Analysiere" status message
-      const currentMessages = get().messages;
-      const { removeMessage } = get();
-      const statusMsg = currentMessages.find((m) => m.kind === 'status' && m.isStreaming && m.content === 'Analysiere...');
-      if (statusMsg) {
-        removeMessage(statusMsg.id);
-      }
 
       if (!intent) {
         // No intent - show mode selector
@@ -956,6 +942,79 @@ export const useAppStore = create<AppState>((set, get) => ({
           });
           get().setContactsPanelOpen(true);
           set({ phase: 'idle', pendingTranscript: null });
+          break;
+
+        case 'query_tasks':
+          {
+            const { activeProjectId, projects, historyItems } = get();
+            const activeProject = projects.find((p) => p.id === activeProjectId);
+
+            // Find plans matching the active project
+            const allPlanItems = historyItems
+              .filter((item) => item.mode === 'plan' && item.result?.json)
+              .sort((a, b) => b.createdAt - a.createdAt);
+
+            // Find matching plan
+            const matchingPlan = activeProject
+              ? allPlanItems.find((item) => {
+                  const planData = item.result?.json as { projectName?: string };
+                  const planName = planData?.projectName?.toLowerCase() || '';
+                  const projectName = activeProject.name.toLowerCase();
+                  return planName.includes(projectName) || projectName.includes(planName);
+                })
+              : allPlanItems[0];
+
+            if (matchingPlan && matchingPlan.result?.json) {
+              const planData = matchingPlan.result.json as { projectName?: string; milestones?: Array<{ name: string; tasks?: Array<{ title: string; status: string; estimate?: string }> }> };
+              const openTasks: Array<{ milestone: string; title: string; estimate?: string }> = [];
+
+              for (const milestone of planData.milestones || []) {
+                for (const task of milestone.tasks || []) {
+                  if (task.status !== 'done') {
+                    openTasks.push({
+                      milestone: milestone.name,
+                      title: task.title,
+                      estimate: task.estimate,
+                    });
+                  }
+                }
+              }
+
+              if (openTasks.length > 0) {
+                let taskList = `**Offene Aufgaben für ${planData.projectName || activeProject?.name || 'dein Projekt'}:**\n\n`;
+                let currentMilestone = '';
+                for (const task of openTasks) {
+                  if (task.milestone !== currentMilestone) {
+                    currentMilestone = task.milestone;
+                    taskList += `\n**${currentMilestone}:**\n`;
+                  }
+                  taskList += `- [ ] ${task.title}${task.estimate ? ` (${task.estimate})` : ''}\n`;
+                }
+                taskList += `\n_${openTasks.length} Aufgaben offen_`;
+
+                addMessage({
+                  role: 'assistant',
+                  content: taskList,
+                  kind: 'text',
+                });
+              } else {
+                addMessage({
+                  role: 'assistant',
+                  content: `Alle Aufgaben für ${planData.projectName || activeProject?.name || 'das Projekt'} sind erledigt! 🎉`,
+                  kind: 'text',
+                });
+              }
+            } else {
+              addMessage({
+                role: 'assistant',
+                content: activeProject
+                  ? `Für das Projekt "${activeProject.name}" gibt es noch keinen Plan mit Aufgaben. Soll ich einen erstellen?`
+                  : 'Es gibt noch keine Projekte mit Aufgaben. Sag mir, was du planst, und ich erstelle einen Plan!',
+                kind: 'text',
+              });
+            }
+            set({ phase: 'idle', pendingTranscript: null });
+          }
           break;
 
         case 'ambiguous_project':
@@ -1446,6 +1505,77 @@ export const useAppStore = create<AppState>((set, get) => ({
             });
             get().setContactsPanelOpen(true);
             set({ phase: 'idle' });
+            break;
+
+          case 'query_tasks':
+            {
+              const { activeProjectId, projects, historyItems } = get();
+              const activeProject = projects.find((p) => p.id === activeProjectId);
+
+              const allPlanItems = historyItems
+                .filter((item) => item.mode === 'plan' && item.result?.json)
+                .sort((a, b) => b.createdAt - a.createdAt);
+
+              const matchingPlan = activeProject
+                ? allPlanItems.find((item) => {
+                    const planData = item.result?.json as { projectName?: string };
+                    const planName = planData?.projectName?.toLowerCase() || '';
+                    const projectName = activeProject.name.toLowerCase();
+                    return planName.includes(projectName) || projectName.includes(planName);
+                  })
+                : allPlanItems[0];
+
+              if (matchingPlan && matchingPlan.result?.json) {
+                const planData = matchingPlan.result.json as { projectName?: string; milestones?: Array<{ name: string; tasks?: Array<{ title: string; status: string; estimate?: string }> }> };
+                const openTasks: Array<{ milestone: string; title: string; estimate?: string }> = [];
+
+                for (const milestone of planData.milestones || []) {
+                  for (const task of milestone.tasks || []) {
+                    if (task.status !== 'done') {
+                      openTasks.push({
+                        milestone: milestone.name,
+                        title: task.title,
+                        estimate: task.estimate,
+                      });
+                    }
+                  }
+                }
+
+                if (openTasks.length > 0) {
+                  let taskList = `**Offene Aufgaben für ${planData.projectName || activeProject?.name || 'dein Projekt'}:**\n\n`;
+                  let currentMilestone = '';
+                  for (const task of openTasks) {
+                    if (task.milestone !== currentMilestone) {
+                      currentMilestone = task.milestone;
+                      taskList += `\n**${currentMilestone}:**\n`;
+                    }
+                    taskList += `- [ ] ${task.title}${task.estimate ? ` (${task.estimate})` : ''}\n`;
+                  }
+                  taskList += `\n_${openTasks.length} Aufgaben offen_`;
+
+                  addMessage({
+                    role: 'assistant',
+                    content: taskList,
+                    kind: 'text',
+                  });
+                } else {
+                  addMessage({
+                    role: 'assistant',
+                    content: `Alle Aufgaben für ${planData.projectName || activeProject?.name || 'das Projekt'} sind erledigt! 🎉`,
+                    kind: 'text',
+                  });
+                }
+              } else {
+                addMessage({
+                  role: 'assistant',
+                  content: activeProject
+                    ? `Für das Projekt "${activeProject.name}" gibt es noch keinen Plan mit Aufgaben. Soll ich einen erstellen?`
+                    : 'Es gibt noch keine Projekte mit Aufgaben. Sag mir, was du planst, und ich erstelle einen Plan!',
+                  kind: 'text',
+                });
+              }
+              set({ phase: 'idle' });
+            }
             break;
 
           case 'ambiguous_project':

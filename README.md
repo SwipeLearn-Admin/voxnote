@@ -164,7 +164,11 @@ Recording was too short (< 0.7 seconds). Hold Space longer while speaking.
 The audio format was rejected. Minimum recording is ~1 second. If this persists, check that your microphone is working correctly.
 
 ### "API Key fehlt"
-OpenAI API key is not configured. Press `S` to open Settings and enter your key.
+OpenAI API key is not configured. Add your key to `.env.local`:
+```bash
+echo "OPENAI_API_KEY=sk-your-key" > .env.local
+```
+Then restart the app.
 
 ### "Rate Limit erreicht"
 OpenAI rate limit hit. Wait a moment and click "Retry".

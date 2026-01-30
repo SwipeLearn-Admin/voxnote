@@ -62,21 +62,44 @@ if (!gotTheLock) {
 /**
  * Normalize audio data from IPC (can be Uint8Array, number[], or Buffer-like object)
  * to a format suitable for the pipeline.
+ *
+ * Note: instanceof checks can fail across Electron context boundaries,
+ * so we use duck-typing for Uint8Array-like objects.
  */
 function normalizeIPCAudio(audio: unknown): AudioData {
-  // Handle Uint8Array (preferred)
+  // Handle Node.js Buffer (extends Uint8Array)
+  if (Buffer.isBuffer(audio)) {
+    return new Uint8Array(audio);
+  }
+
+  // Handle Uint8Array (preferred) - use duck typing for cross-context compatibility
   if (audio instanceof Uint8Array) {
     return audio;
   }
 
-  // Handle number[] (legacy fallback)
-  if (Array.isArray(audio)) {
-    return audio as number[];
-  }
-
-  // Handle Buffer-like objects (from IPC serialization)
+  // Duck-type check for Uint8Array-like objects from IPC
+  // These have byteLength, buffer, and numeric indexing
   if (audio && typeof audio === 'object') {
     const obj = audio as Record<string, unknown>;
+
+    // Check if it looks like a Uint8Array (has byteLength and can be indexed)
+    if (typeof obj.byteLength === 'number' && obj.byteLength > 0) {
+      // Try to convert via Buffer (handles most IPC serialization cases)
+      try {
+        // If it has a buffer property, it might be a TypedArray view
+        if (obj.buffer && typeof obj.byteOffset === 'number') {
+          return new Uint8Array(obj.buffer as ArrayBuffer, obj.byteOffset as number, obj.byteLength);
+        }
+        // Try direct conversion
+        const arr = new Uint8Array(obj.byteLength);
+        for (let i = 0; i < obj.byteLength; i++) {
+          arr[i] = (obj as unknown as Uint8Array)[i];
+        }
+        return arr;
+      } catch {
+        // Fall through to other methods
+      }
+    }
 
     // Check for Buffer serialization format: { type: 'Buffer', data: [...] }
     if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
@@ -94,7 +117,13 @@ function normalizeIPCAudio(audio: unknown): AudioData {
     }
   }
 
+  // Handle number[] (legacy fallback)
+  if (Array.isArray(audio)) {
+    return new Uint8Array(audio as number[]);
+  }
+
   // Fallback: empty
+  console.error('[normalizeIPCAudio] Could not normalize audio data:', typeof audio, audio);
   return new Uint8Array(0);
 }
 
