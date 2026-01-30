@@ -13,6 +13,15 @@ import { useCopy } from '@/lib/hooks/useCopy';
 import { getModeConfig, type ModeId } from './ModeRail';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { PlanCard } from './PlanCard';
+import {
+  MeetingCard,
+  TasksCard,
+  ReminderCard,
+  EmailCard,
+  TicketCard,
+  DevNoteCard,
+  CleanCard,
+} from './StructuredCards';
 import type { PlanData } from '../../electron/shared/types';
 
 interface ArtifactCardProps {
@@ -52,6 +61,95 @@ export function ArtifactCard({
         defaultExpanded={defaultExpanded}
       />
     );
+  }
+
+  // Use structured cards for other modes if data exists
+  if (data && typeof data === 'object') {
+    const cardData = data as Record<string, unknown>;
+
+    // Meeting card
+    if (mode === 'meeting' && (cardData.summary || cardData.actionItems || cardData.decisions)) {
+      return (
+        <MeetingCard
+          data={cardData as { summary?: string; decisions?: string[]; actionItems?: Array<{ task: string; owner?: string | null; due?: string | null }>; openQuestions?: string[] }}
+          markdown={markdown}
+          timestamp={timestamp}
+          defaultExpanded={defaultExpanded}
+        />
+      );
+    }
+
+    // Tasks card
+    if (mode === 'tasks' && cardData.tasks) {
+      return (
+        <TasksCard
+          data={cardData as { tasks?: Array<{ task: string; owner?: string | null; due?: string | null; priority?: string }> }}
+          markdown={markdown}
+          timestamp={timestamp}
+          defaultExpanded={defaultExpanded}
+        />
+      );
+    }
+
+    // Reminder card
+    if (mode === 'reminder' && (cardData.what || cardData.when)) {
+      return (
+        <ReminderCard
+          data={cardData as { what?: string; when?: string | null; whenRaw?: string; recurring?: boolean }}
+          markdown={markdown}
+          timestamp={timestamp}
+          defaultExpanded={defaultExpanded}
+        />
+      );
+    }
+
+    // Email card
+    if (mode === 'email' && (cardData.subject || cardData.body)) {
+      return (
+        <EmailCard
+          data={cardData as { subject?: string; to?: string | null; body?: string }}
+          markdown={markdown}
+          timestamp={timestamp}
+          defaultExpanded={defaultExpanded}
+        />
+      );
+    }
+
+    // Ticket card
+    if (mode === 'ticket' && (cardData.title || cardData.description)) {
+      return (
+        <TicketCard
+          data={cardData as { title?: string; description?: string; acceptanceCriteria?: string[]; labels?: string[]; priority?: string }}
+          markdown={markdown}
+          timestamp={timestamp}
+          defaultExpanded={defaultExpanded}
+        />
+      );
+    }
+
+    // DevNote card
+    if (mode === 'devnote' && cardData.changeType) {
+      return (
+        <DevNoteCard
+          data={cardData as { changeType?: string; breaking?: boolean; affectedFiles?: string[] }}
+          markdown={markdown}
+          timestamp={timestamp}
+          defaultExpanded={defaultExpanded}
+        />
+      );
+    }
+
+    // Clean card
+    if (mode === 'clean' && typeof cardData.wordCount === 'number') {
+      return (
+        <CleanCard
+          data={cardData as { wordCount?: number }}
+          markdown={markdown}
+          timestamp={timestamp}
+          defaultExpanded={defaultExpanded}
+        />
+      );
+    }
   }
 
   // Extract first line as title preview (for collapsed state)
