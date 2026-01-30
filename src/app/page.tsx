@@ -200,11 +200,9 @@ export default function Home() {
     }
   }, [userInput]);
 
-  // Update active mode from store
+  // Update active mode from store (sync in both directions)
   useEffect(() => {
-    if (selectedMode) {
-      setActiveMode(selectedMode as ModeId);
-    }
+    setActiveMode(selectedMode as ModeId | null);
   }, [selectedMode]);
 
   // Initialize app
@@ -318,11 +316,20 @@ export default function Home() {
 
   // Handle mode click
   const handleModeClick = useCallback((mode: ModeId) => {
-    setActiveMode(mode);
     const store = useAppStore.getState();
 
-    // If we have a pending transcript, process it with this mode
-    if (store.pendingTranscript && ['awaiting_action', 'idle', 'done'].includes(store.phase)) {
+    // Toggle behavior: clicking active mode deactivates it (return to auto-detect)
+    if (activeMode === mode) {
+      setActiveMode(null);
+      store.clearSelectedMode();
+      return;
+    }
+
+    setActiveMode(mode);
+
+    // Only process immediately if we have an UNPROCESSED transcript (awaiting_action phase)
+    // Don't reprocess after 'done' - that means we already created something
+    if (store.pendingTranscript && store.phase === 'awaiting_action') {
       handleActionSelected(mode);
     } else {
       // Otherwise set the mode for next recording WITH feedback message
@@ -330,7 +337,7 @@ export default function Home() {
       // Expand window to show the feedback
       expandWindow();
     }
-  }, [handleActionSelected, expandWindow]);
+  }, [handleActionSelected, expandWindow, activeMode]);
 
   // Handle input submit
   const handleInputSubmit = useCallback(() => {

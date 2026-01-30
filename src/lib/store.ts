@@ -271,6 +271,7 @@ interface AppState {
   setActiveRunId: (runId: string | null) => void;
   setPendingTranscript: (transcript: string | null) => void;
   setSelectedMode: (mode: ModeId | null) => void;
+  clearSelectedMode: () => void;
   activateModeWithFeedback: (mode: ModeId) => void;
   setInstruction: (instruction: string | null) => void;
   setLastArtifactMarkdown: (markdown: string | null) => void;
@@ -392,6 +393,14 @@ export const useAppStore = create<AppState>((set, get) => ({
   setActiveRunId: (activeRunId) => set({ activeRunId }),
   setPendingTranscript: (pendingTranscript) => set({ pendingTranscript }),
   setSelectedMode: (selectedMode) => set({ selectedMode }),
+  clearSelectedMode: () => {
+    set({ selectedMode: null });
+    get().addMessage({
+      role: 'assistant',
+      content: '**Auto-Modus** aktiviert. Der passende Modus wird automatisch erkannt.',
+      kind: 'status',
+    });
+  },
   activateModeWithFeedback: (mode) => {
     const modeLabel = MODE_ACTIONS.find((a) => a.id === mode)?.label || mode;
     set({ selectedMode: mode });
